@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: inventory-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+server:
+  port: 8082
+  tomcat:
+    threads:
+      min-spare: 10
+      max: 30
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus

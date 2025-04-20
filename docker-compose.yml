@@ -1,0 +1,78 @@
+version: '3.8'
+services:
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-repo:/config-repo
+    networks:
+      - microservices-net
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8081:8081"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'  # Simulate 2 vCPUs
+          memory: 4G   # Simulate 4GB memory
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    networks:
+      - microservices-net
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "8082:8082"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'  # Simulate 1 vCPU
+          memory: 2G   # Simulate 2GB memory
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    networks:
+      - microservices-net
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8083:8083"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'  # Simulate 1 vCPU
+          memory: 2G   # Simulate 2GB memory
+    depends_on:
+      - config-server
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+    networks:
+      - microservices-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - microservices-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - microservices-net
+
+networks:
+  microservices-net:
+    driver: bridge

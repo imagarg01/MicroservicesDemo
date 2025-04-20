@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: payment-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+server:
+  port: 8083
+  tomcat:
+    threads:
+      min-spare: 10
+      max: 20
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
